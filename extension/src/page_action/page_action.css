@@ -4,6 +4,19 @@ body {
 }
 
 .vlg-container {
-    heigth: 100%;
-    padding: 24px;
+    height: 100%;
+}
+.vlg-header {
+    margin-top: 10px;
+    padding: 0 24px;
+}
+.vlg-list {
+    padding: 0 24px;
+}
+.vlg-play {
+    position: relative;
+}
+.vlg-progress {
+    position: absolute;
+    left: 28px;
 }

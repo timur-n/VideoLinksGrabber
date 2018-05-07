@@ -1,11 +1,10 @@
 let links = [
-	{name: 'Test link', url: 'test url', type: 'MP4'}
+	{name: 'Test link - bunny animation', site: 'Test', url: 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4', type: ''}
 ];
 
 chrome.runtime.onInstalled.addListener(function() {
 	chrome.declarativeContent.onPageChanged.removeRules(undefined, function() {
 		chrome.declarativeContent.onPageChanged.addRules([{
-			// conditions: [new chrome.declarativeContent.PageStateMatcher({pageUrl: {hostEquals: 'kinogo.by'}})],
 			conditions: [new chrome.declarativeContent.PageStateMatcher()],
 			actions: [new chrome.declarativeContent.ShowPageAction()]
 		}]);
@@ -16,13 +15,13 @@ chrome.runtime.onInstalled.addListener(function() {
 	};
 	const makeListener = function(name) {
 		return function(details) {
-			if (/.*\.mp4$/.test(details.url)) {
+			let fileName = /[^\/\\&\?]+\.\w{3,}(?=([\?&].*$|$))/i.exec(details.url);
+			fileName = fileName && fileName.length && fileName[0] || details.url;
+			if (/.*\.(mp4|m3u8)$/i.test(fileName)) {
 				console.log(name, details);
-				// todo: remove duplicates?
-				let fileName = /[^\/\\&\?]+\.\w{3,}(?=([\?&].*$|$))/.exec(details.url);
-				fileName = fileName.length && fileName[0] || details.url;
 				links.unshift({
 					name: fileName,
+					site: details.initiator,
 					url: details.url,
 					type: ''
 				});
@@ -30,21 +29,6 @@ chrome.runtime.onInstalled.addListener(function() {
 		}
 	};
 	chrome.webRequest.onBeforeSendHeaders.addListener(makeListener("onBeforeSendHeaders"), filter, ["requestHeaders"]);
-	// chrome.webRequest.onResponseStarted.addListener(makeListener("onResponseStarted"), filter);
-});
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-	console.log("onMessage", request);
-	switch(request.action) {
-		case 'list':
-			sendResponse({response: urls});
-			break;
-
-		case 'clear':
-			links = [];
-			sendReponse({response: 'OK'});
-			break;
-	}
 });
 
 function getList() {
