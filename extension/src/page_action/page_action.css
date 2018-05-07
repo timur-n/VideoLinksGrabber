@@ -1,0 +1,9 @@
+body {
+    width: 500px;
+    height: 400px;
+}
+
+.vlg-container {
+    heigth: 100%;
+    padding: 24px;
+}
