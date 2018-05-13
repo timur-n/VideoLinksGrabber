@@ -17,11 +17,12 @@
   },
   "page_action": {
     "default_icon": "icons/icon19.png",
-    "default_title": "VideoLinksGrabber",
+    "default_title": "Played videos",
     "default_popup": "src/page_action/page_action.html"
   },
   "permissions": [
     "webRequest",
+    "downloads",
     "declarativeContent",
     "<all_urls>"
   ]

@@ -78,7 +78,7 @@ angular
 <div class="vlg-container" layout="column">
 	<div class="vlg-header" layout="row" layout-align="start center">
 		<h3 flex>Found videos</h3>
-		<md-button ng-click="$ctrl.clear()">Delete all</md-button>
+		<md-button ng-click="$ctrl.clear()">Clear list</md-button>
 	</div>
 	<div class="vlg-list" flex>
 		<div ng-repeat="link in $ctrl.links track by $index" layout="row" layout-align="start center">
@@ -87,7 +87,14 @@ angular
 				<md-progress-circular class="vlg-progress" ng-if="link.pending" mode="indeterminate" md-diameter="48px"></md-progress-circular>
 				<md-button ng-click="$ctrl.play(link)" ng-disabled="link.pending">Play</md-button>
 			</div>
-			<md-button ng-click="$ctrl.delete(link)">Delete</md-button>
+			<md-button class="md-icon-button" ng-click="$ctrl.download(link)" aria-label="Download">
+				<md-tooltip>Download</md-tooltip>
+				<i class="icon-cloud_download"></i>
+			</md-button>
+			<md-button class="md-icon-button" ng-click="$ctrl.delete(link)" aria-label="Delete">
+				<md-tooltip>Delete</md-tooltip>
+				<i class="icon-delete"></i>
+			</md-button>
 		</div>
 	</div>
 </div>`,
@@ -96,6 +103,13 @@ angular
 			this.links = vlgData.getList();
 
 			this.play = link => vlgKodi.play(link);
+
+			this.download = link => {
+				chrome.downloads.download({
+					url: link.url,
+					saveAs: true,
+				});
+			};
 
 			this.delete = link => this.links = vlgData.deleteItem(link);
 

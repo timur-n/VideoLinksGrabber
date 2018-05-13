@@ -20,3 +20,6 @@ body {
     position: absolute;
     left: 28px;
 }
+[class^="icon-"], [class*=" icon-"] {
+    font-size: 24px;
+}
