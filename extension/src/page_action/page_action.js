@@ -5,7 +5,7 @@ angular
 		this.deleteItem = item => chrome.extension.getBackgroundPage().deleteItem(item);
 		this.clearList = () => chrome.extension.getBackgroundPage().clearList();
 	})
-	.service('vlgKodi', function($http) {
+	.service('vlgKodi', function($http, $q) {
 
 		function jsonRpc(method, params) {
 			return {
@@ -44,33 +44,33 @@ angular
 			    });
 			}
 			*/
-			const handleError = error => console.log('Error', error);
-			const stop = jsonRpc('Player.Stop', {playerid: 1});
 			link.pending = true;
+			const handleError = error => {
+				console.log('Error', error);
+				return $q.reject(error);
+			};
+			const stop = jsonRpc('Player.Stop', {playerid: 1});
 			return $http.post(kodiUrl, stop)
 				.then(result => {
-					console.log('Stop', stop, result);
+					//console.log('Stop', stop, result);
 					const clearVideoPlaylist = jsonRpc('Playlist.Clear', {playlistid: 1});
 					return $http.post(kodiUrl, clearVideoPlaylist)
-						.then(result => {
-							console.log('Clear list', clearVideoPlaylist, result);
-							const addItemsToPlaylist = jsonRpc('Playlist.Add', {playlistid: 1, item: {file: link.url}});
-							return $http.post(kodiUrl, addItemsToPlaylist)
-								.then(result => {
-									console.log('Add', addItemsToPlaylist, result);
-									const open = jsonRpc('Player.Open', {item: {playlistid: 1, position: 0}});
-									return $http.post(kodiUrl, open)
-										.then(result => {
-											console.log('Open', open, result);
-											link.pending = false;
-										})
-										.catch(handleError);
-								})
-								.catch(handleError);
-						})
-						.catch(handleError);
 				})
-				.catch(handleError);
+				.then(result => {
+					//console.log('Clear list', clearVideoPlaylist, result);
+					const addItemsToPlaylist = jsonRpc('Playlist.Add', {playlistid: 1, item: {file: link.url}});
+					return $http.post(kodiUrl, addItemsToPlaylist)
+				})
+				.then(result => {
+					//console.log('Add', addItemsToPlaylist, result);
+					const open = jsonRpc('Player.Open', {item: {playlistid: 1, position: 0}});
+					return $http.post(kodiUrl, open)
+				})
+				.then(result => {
+					console.log("Sent to KODI");
+				})
+				.catch(handleError)
+				.finally(() => link.pending = false);
 		};
 	})
 	.component('vlgPage', {
@@ -79,6 +79,10 @@ angular
 	<div class="vlg-header" layout="row" layout-align="start center">
 		<h3 flex>Found videos</h3>
 		<md-button ng-click="$ctrl.clear()">Clear list</md-button>
+		<md-button class="md-icon-button" ng-click="$ctrl.settings()">
+			<md-tooltip>Settings</md-tooltip>
+			<i class="icon-settings"></i>
+		</md-button>
 	</div>
 	<div class="vlg-list" flex>
 		<div ng-repeat="link in $ctrl.links track by $index" layout="row" layout-align="start center">
@@ -98,13 +102,53 @@ angular
 		</div>
 	</div>
 </div>`,
-		controller: function(vlgData, vlgKodi) {
+		controller: function($timeout, $mdToast, vlgData, vlgKodi) {
 
 			this.links = vlgData.getList();
 
-			this.play = link => vlgKodi.play(link);
+			this.toast = (type, message) => {
+				$mdToast.show({
+					template: `
+<md-toast>
+	<div class="vlg-toast" ng-class="$ctrl.getToastClass()" layout="row" layout-align="start center">
+		<i class="vlg-toast-icon" ng-class="$ctrl.getIconClass()"></i>
+		<span>{{$ctrl.message}}</span>
+	</div>
+</md-toast>`,
+					// hideDelay: 0,
+					position: 'top',
+					bindToController: true,
+					controllerAs: '$ctrl',
+					parent: 'body',
+					locals: {
+						type: type,
+						message: message
+					},
+					controller: function() {
+						this.getIconClass = () => ({
+							"icon-check_circle": this.type === "success",
+							"icon-error": this.type === "error",
+						});
+
+						this.getToastClass = () => ({
+							"vlg-toast-success": this.type === "success",
+							"vlg-toast-error": this.type === "error",
+						});
+					}
+				});
+			}
+
+			this.play = link => vlgKodi
+				.play(link)
+				.then(result => {
+					this.toast("success", "Sent to Kodi");
+				})
+				.catch(error => {
+					this.toast("error", "Error sending to Kodi");
+				});
 
 			this.download = link => {
+				// todo: pause network monitoring for the download URL?
 				chrome.downloads.download({
 					url: link.url,
 					saveAs: true,
@@ -114,5 +158,7 @@ angular
 			this.delete = link => this.links = vlgData.deleteItem(link);
 
 			this.clear = () => this.links = vlgData.clearList();
+
+			this.settings = () => {};
 		}
 	});

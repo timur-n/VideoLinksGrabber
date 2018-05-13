@@ -1,6 +1,7 @@
-body {
+html,body {
     width: 500px;
     height: 400px;
+    background-color: white;
 }
 
 .vlg-container {
@@ -8,10 +9,10 @@ body {
 }
 .vlg-header {
     margin-top: 10px;
-    padding: 0 24px;
 }
+.vlg-header,
 .vlg-list {
-    padding: 0 24px;
+    padding: 0 12px 0 24px;
 }
 .vlg-play {
     position: relative;
@@ -19,6 +20,23 @@ body {
 .vlg-progress {
     position: absolute;
     left: 28px;
+}
+md-toast {
+    margin: 24px;
+    width: auto;
+}
+.md-toast-content.md-toast-content.md-toast-content {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.37);
+}
+.vlg-toast-success {
+    color: green;
+}
+.vlg-toast-error {
+    color: darkred;
+}
+.vlg-toast-icon {
+    margin-right: 12px;
 }
 [class^="icon-"], [class*=" icon-"] {
     font-size: 24px;
