@@ -17,7 +17,7 @@ chrome.runtime.onInstalled.addListener(function() {
 		return function(details) {
 			let fileName = /[^\/\\&\?]+\.\w{3,}(?=([\?&].*$|$))/i.exec(details.url);
 			fileName = fileName && fileName.length && fileName[0] || details.url;
-			if (/.*\.(mp4|m3u8)$/i.test(fileName)) {
+			if (/.*\.(mp4|m3u8|flv)$/i.test(fileName)) {
 				console.log(name, details);
 				links.unshift({
 					name: fileName,
