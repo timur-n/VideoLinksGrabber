@@ -115,6 +115,13 @@ angular
 		</md-button>
 	</div>
 	<div class="vlg-list" flex>
+    <div layout="row">
+      <md-input-container flex>
+        <label>URL</label>
+        <input ng-model="$ctrl.anyUrl">
+      </md-input-container>
+      <md-button class="xmd-icon-button" ng-click="$ctrl.play({url: $ctrl.anyUrl})">Play</md-button>
+    </div>
 		<div ng-repeat="link in $ctrl.links track by $index" layout="row" layout-align="start center">
 			<span flex>{{link.name}} @ {{link.site}}</span>
 			<div class="vlg-play">

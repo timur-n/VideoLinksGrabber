@@ -24,7 +24,6 @@
     "webRequest",
     "downloads",
     "declarativeContent",
-    "<all_urls>",
-    "clipboard"
+    "<all_urls>"
   ]
 }
